@@ -3,9 +3,6 @@
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
@@ -25,8 +22,6 @@ export default function Home() {
   const [filter, setFilter] = useState({
     sort: "none",
   });
-
-  console.log(filter);
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
