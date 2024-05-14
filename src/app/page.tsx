@@ -15,6 +15,12 @@ import { ProductType } from "@/db";
 import Product from "@/components/Products/Product";
 import { metadata } from "./layout";
 import ProductSkeleton from "@/components/Products/ProductSkeleton";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 // a const value that never changes - we put in caps!
 // the 'as const' lets typescript know that the following is always an array that can not be modified
@@ -24,6 +30,25 @@ const SORT_OPTIONS = [
   { name: "Price: Low to High", value: "price-asc" },
   { name: "Price: High to Low", value: "price-desc" },
 ] as const;
+
+const SUBCATEGORIES = [
+  { name: "T-Shirts", selected: true, href: "#" },
+  { name: "Hoodies", selected: false, href: "#" },
+  { name: "Sweatshirts", selected: false, href: "#" },
+  { name: "Accessories", selected: false, href: "#" },
+];
+
+const COLOR_FILTERS = {
+  id: "colour",
+  name: "colour",
+  options: [
+    { value: "white", label: "White" },
+    { value: "beige", label: "Beige" },
+    { value: "blue", label: "Blue" },
+    { value: "green", label: "Green" },
+    { value: "purple", label: "Purple" },
+  ] as const,
+};
 
 export default function Home() {
   const [filter, setFilter] = useState({
@@ -84,6 +109,7 @@ export default function Home() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
           <button className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden">
             <Filter className="h-5 w-5" />
           </button>
@@ -92,7 +118,50 @@ export default function Home() {
 
       <section className="pb-24 pt-6">
         <div className="grid grid-cols-1 gap-x-8 gap-y-7 lg:grid-cols-4">
-          <div></div>
+          <div className="hidden lg:block">
+            <ul className="space-y-4 border-b border-gray-200 pb-6 text-sm font-medium text-gray-900">
+              {SUBCATEGORIES.map((category) => (
+                <li key={category.name}>
+                  <button
+                    disabled={!category.selected}
+                    className="disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {category.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <Accordion type="multiple" className="animate-none">
+              {/* Colour Filter */}
+              <AccordionItem value="color">
+                <AccordionTrigger className="py-3 text-sm text-gray-400 hover:text-gray-500">
+                  <span className="font-medium text-gray-900">Colour</span>
+                </AccordionTrigger>
+
+                <AccordionContent className="pt-6 animate-none">
+                  <ul className="space-y-4">
+                    {COLOR_FILTERS.options.map((option, optionIdx) => (
+                      <li key={option.value} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`color-${optionIdx}`}
+                          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                        <label
+                          htmlFor={`color-${optionIdx}`}
+                          className="ml-3 text-sm text-gray-600"
+                        >
+                          {option.label}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+
           <ul className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {products
               ? products?.map((product) => (
