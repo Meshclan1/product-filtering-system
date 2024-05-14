@@ -6,11 +6,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, Filter } from "lucide-react";
 import { useState } from "react";
+import axios from "axios";
+import { QueryResult } from "@upstash/vector";
+import { Product } from "@/db";
+import Product from "@/components/Products/Product";
 
 // a const value that never changes - we put in caps!
-// 'as const' lets typescript know that the following is always an array that can not be modified
+// the 'as const' lets typescript know that the following is always an array that can not be modified
 
 const SORT_OPTIONS = [
   { name: "None", value: "none" },
@@ -21,6 +26,27 @@ const SORT_OPTIONS = [
 export default function Home() {
   const [filter, setFilter] = useState({
     sort: "none",
+  });
+
+  // the result of data fetching will be catched as 'products' in our queryKey
+
+  // axios.post is data we will be sending
+  // always include the http endpoint, and the data you will be sending
+
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data } = await axios.post<QueryResult<Product>[]>(
+        "http://localhost:3000/api/products",
+        {
+          filter: {
+            sort: filter.sort,
+          },
+        }
+      );
+
+      return data;
+    },
   });
 
   return (
@@ -61,6 +87,17 @@ export default function Home() {
           </button>
         </div>
       </div>
+
+      <section className="pb-24 pt-6">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-7 lg:grid-cols-4">
+          <div></div>
+          <ul className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {products?.map(() => (
+              <Product />
+            ))}
+          </ul>
+        </div>
+      </section>
     </main>
   );
 }
