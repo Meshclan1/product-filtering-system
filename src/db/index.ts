@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-export type Product = {
+export type ProductType = {
   id: string;
   imageId: string;
   name: string;
@@ -12,6 +12,6 @@ export type Product = {
   price: number;
 };
 
-export const db = new Index<Product>();
+export const db = new Index<ProductType>();
 
 // this is the way we connect to our database in Upstash Vector. We just have to invoke it. It autoamatically pulls the required information from our .env file
