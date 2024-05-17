@@ -37,18 +37,42 @@ class Filter {
   }
 }
 
+const AVG_PRODUCT_PRICE = 25;
+const MAX_PRODUCT_PRICE = 50;
+
 export const POST = async (req: NextRequest) => {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  const { color, price, sort, size } = ProductFilterValidator.parse(
-    body.filter
-  );
+    const { color, price, sort, size } = ProductFilterValidator.parse(
+      body.filter
+    );
 
-  const products = await db.query({
-    topK: 12,
-    vector: [0, 0, 0],
-    includeMetadata: true,
-  });
+    const filter = new Filter();
+    color.forEach((color) => filter.add("color", "=", color));
+    size.forEach((size) => filter.add("size", "=", size));
+    filter.addRaw("price", `price >= ${price[0]} AND price <= ${price[1]}`);
 
-  return new Response(JSON.stringify(products));
+    const products = await db.query({
+      topK: 12,
+      vector: [
+        0,
+        0,
+        sort === "none"
+          ? AVG_PRODUCT_PRICE
+          : sort === "price-asc"
+          ? 0
+          : MAX_PRODUCT_PRICE,
+      ],
+      includeMetadata: true,
+      filter: filter.hasFilter() ? filter.get() : undefined,
+    });
+
+    return new Response(JSON.stringify(products));
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ message: "Internl Server Error" }), {
+      status: 500,
+    });
+  }
 };

@@ -96,7 +96,7 @@ export default function Home() {
           filter: {
             sort: filter.sort,
             color: filter.color,
-            price: filter.price,
+            price: filter.price.range,
             size: filter.size,
           },
         }
