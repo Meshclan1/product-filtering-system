@@ -21,6 +21,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ProductState } from "@/lib/validators/product-validator";
 
 // a const value that never changes - we put in caps!
 // the 'as const' lets typescript know that the following is always an array that can not be modified
@@ -50,8 +51,13 @@ const COLOR_FILTERS = {
   ] as const,
 };
 
+const DEFAULT_CUSTOM_PRICE = [0, 100] as [number, number];
+
 export default function Home() {
-  const [filter, setFilter] = useState({
+  const [filter, setFilter] = useState<ProductState>({
+    color: ["White", "Beige", "Green", "Purple", "Blue"],
+    price: { isCustom: false, range: DEFAULT_CUSTOM_PRICE },
+    size: ["S", "M", "L"],
     sort: "none",
   });
 
