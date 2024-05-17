@@ -55,7 +55,7 @@ const DEFAULT_CUSTOM_PRICE = [0, 100] as [number, number];
 
 export default function Home() {
   const [filter, setFilter] = useState<ProductState>({
-    color: ["White", "Beige", "Green", "Purple", "Blue"],
+    color: ["white", "beige", "green", "purple", "blue"],
     price: { isCustom: false, range: DEFAULT_CUSTOM_PRICE },
     size: ["S", "M", "L"],
     sort: "none",
@@ -81,6 +81,28 @@ export default function Home() {
       return data;
     },
   });
+
+  const applyArrayFilter = ({
+    category,
+    value,
+  }: {
+    category: keyof Omit<typeof filter, "price" | "sort">;
+    value: string; // "S", "M", "White" | "Beige";
+  }) => {
+    const isFilterApplied = filter[category].includes(value as never);
+
+    if (isFilterApplied) {
+      setFilter((prev) => ({
+        ...prev,
+        [category]: prev[category].filter((v) => v !== value),
+      }));
+    } else {
+      setFilter((prev) => ({
+        ...prev,
+        [category]: [...prev[category], value],
+      }));
+    }
+  };
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -152,6 +174,13 @@ export default function Home() {
                         <input
                           type="checkbox"
                           id={`color-${optionIdx}`}
+                          onChange={() => {
+                            applyArrayFilter({
+                              category: "color",
+                              value: option.value,
+                            });
+                          }}
+                          checked={filter.color.includes(option.value)}
                           className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         />
                         <label

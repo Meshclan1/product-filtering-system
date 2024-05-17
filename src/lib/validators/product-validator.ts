@@ -3,11 +3,11 @@ import { z } from "zod";
 export const AVAILABLE_SIZES = ["S", "M", "L"] as const;
 
 export const AVAILABLE_COLOURS = [
-  "White",
-  "Beige",
-  "Green",
-  "Purple",
-  "Blue",
+  "white",
+  "beige",
+  "green",
+  "purple",
+  "blue",
 ] as const;
 
 export const AVAILABLE_SORT = ["none", "price-asc", "price-desc"] as const;
