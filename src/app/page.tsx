@@ -8,7 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, Filter } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import axios from "axios";
 import { QueryResult } from "@upstash/vector";
 import { ProductType } from "@/db";
@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/accordion";
 import { ProductState } from "@/lib/validators/product-validator";
 import { Slider } from "@/components/ui/slider";
+import debounce from "lodash.debounce";
+import EmptyState from "@/components/Products/EmptyState";
 
 // a const value that never changes - we put in caps!
 // the 'as const' lets typescript know that the following is always an array that can not be modified
@@ -87,7 +89,7 @@ export default function Home() {
   // axios.post is data we will be sending
   // always include the http endpoint, and the data you will be sending
 
-  const { data: products } = useQuery({
+  const { data: products, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const { data } = await axios.post<QueryResult<ProductType>[]>(
@@ -105,6 +107,10 @@ export default function Home() {
       return data;
     },
   });
+
+  const onSubmit = () => refetch();
+  const debounceSubmit = debounce(onSubmit, 400);
+  const _debounceSubmit = useCallback(debounceSubmit, []);
 
   const applyArrayFilter = ({
     category,
@@ -126,6 +132,8 @@ export default function Home() {
         [category]: [...prev[category], value],
       }));
     }
+
+    _debounceSubmit();
   };
 
   const minPrice = Math.min(filter.price.range[0], filter.price.range[1]);
@@ -157,6 +165,7 @@ export default function Home() {
                       ...prev,
                       sort: option.value,
                     }));
+                    _debounceSubmit();
                   }}
                 >
                   {option.name}
@@ -275,6 +284,7 @@ export default function Home() {
                                 range: [...option.value],
                               },
                             }));
+                            _debounceSubmit();
                           }}
                           checked={
                             !filter.price.isCustom &&
@@ -304,6 +314,7 @@ export default function Home() {
                                 range: [0, 100],
                               },
                             }));
+                            _debounceSubmit();
                           }}
                           checked={filter.price.isCustom}
                           className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
@@ -344,6 +355,7 @@ export default function Home() {
                               range: [newMin, newMax],
                             },
                           }));
+                          _debounceSubmit();
                         }}
                         value={
                           filter.price.isCustom
@@ -362,14 +374,19 @@ export default function Home() {
             </Accordion>
           </div>
 
+          {/* Product grid */}
           <ul className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {products
-              ? products?.map((product) => (
-                  <Product product={product.metadata!} />
-                ))
-              : new Array(12)
-                  .fill(null)
-                  .map((_, i) => <ProductSkeleton key={i} />)}
+            {products && products.length === 0 ? (
+              <EmptyState />
+            ) : products ? (
+              products?.map((product) => (
+                <Product product={product.metadata!} />
+              ))
+            ) : (
+              new Array(12)
+                .fill(null)
+                .map((_, i) => <ProductSkeleton key={i} />)
+            )}
           </ul>
         </div>
       </section>
