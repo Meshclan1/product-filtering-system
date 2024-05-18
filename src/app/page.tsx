@@ -110,7 +110,7 @@ export default function Home() {
 
   const onSubmit = () => refetch();
   const debounceSubmit = debounce(onSubmit, 400);
-  const _debounceSubmit = useCallback(debounceSubmit, []);
+  const _debounceSubmit = useCallback(debounceSubmit, [debounceSubmit]);
 
   const applyArrayFilter = ({
     category,
@@ -379,8 +379,8 @@ export default function Home() {
             {products && products.length === 0 ? (
               <EmptyState />
             ) : products ? (
-              products?.map((product) => (
-                <Product product={product.metadata!} />
+              products?.map((product, i) => (
+                <Product key={i} product={product.metadata!} />
               ))
             ) : (
               new Array(12)
